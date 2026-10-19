@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كل سنة وانت طيب يا لولتي! ❤️</title>
+    <!-- خطوط عربية أنيقة -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- مكتبة ألعاب ومفرقعات الاحتفال (Confetti) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #ff477e;
+            --primary-hover: #ff2a68;
+            --secondary: #ff85a1;
+            --accent: #fbb1bd;
+            --bg-gradient: linear-gradient(135deg, #fff0f3 0%, #ffe3e8 50%, #fde2e4 100%);
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --card-shadow: 0 12px 30px rgba(255, 71, 126, 0.12);
+            --text-main: #33272a;
+            --text-muted: #6b5c61;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.7;
+        }
+
+        /* ----------------- شاشة القفل بالباسورد ----------------- */
+        #lockScreen {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 240, 243, 0.96);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+            transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.7s;
+        }
+
+        #lockScreen.unlocked {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .lock-box {
+            background: var(--card-bg);
+            border: 2px solid rgba(255, 133, 161, 0.35);
+            border-radius: 28px;
+            padding: 40px 25px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(255, 71, 126, 0.2);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.85); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .lock-icon {
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+            font-size: 38px;
+            background: #ffe3e8;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 20px rgba(255, 71, 126, 0.2);
+        }
+
+        .lock-title {
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .lock-hint {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+        }
+
+        .password-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            border: 2px solid #ffccd5;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+            letter-spacing: 2px;
+            background: #fff;
+        }
+
+        .password-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 12px rgba(255, 71, 126, 0.3);
+        }
+
+        .unlock-btn {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 14px 25px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(255, 71, 126, 0.35);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .unlock-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(255, 71, 126, 0.45);
+        }
+
+        .unlock-btn:active {
+            transform: translateY(1px);
+        }
+
+        .error-msg {
+            color: #e63946;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            font-weight: 600;
+            display: none;
+        }
+
+        /* ----------------- زر الموسيقى الطافي ----------------- */
+        .music-player-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: var(--card-bg);
+            border: 1.5px solid rgba(255, 71, 126, 0.3);
+            color: var(--primary);
+            border-radius: 40px;
+            padding: 9px 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+        }
+
+        .music-player-btn:hover {
+            transform: scale(1.05);
+            background: #fff;
+        }
+
+        .sound-wave {
+            display: inline-block;
+            font-size: 1.1rem;
+        }
+
+        /* ----------------- الترويسة الرئيسية ----------------- */
+        header {
+            text-align: center;
+            padding: 80px 20px 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .badge-romantic {
+            display: inline-block;
+            background: rgba(255, 71, 126, 0.12);
+            color: var(--primary);
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        h1.main-title {
+            font-size: clamp(2.1rem, 5vw, 3.2rem);
+            font-weight: 900;
+            color: var(--primary);
+            line-height: 1.3;
+            margin-bottom: 15px;
+            text-shadow: 0 3px 12px rgba(255, 71, 126, 0.15);
+        }
+
+        p.hero-text {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 620px;
+            margin: 0 auto;
+        }
+
+        /* ----------------- قسم التورتة وإطفاء الشمعة ----------------- */
+        .cake-wrapper {
+            background: var(--card-bg);
+            max-width: 520px;
+            margin: 40px auto;
+            border-radius: 28px;
+            padding: 35px 25px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            border: 2px dashed rgba(255, 133, 161, 0.4);
+            position: relative;
+        }
+
+        .cake-stage {
+            position: relative;
+            display: inline-block;
+            margin: 20px 0;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cake-stage:hover {
+            transform: scale(1.06);
+        }
+
+        .cake-emoji {
+            font-size: 90px;
+            display: block;
+        }
+
+        .candle-flame {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 32px;
+            filter: drop-shadow(0 0 10px #ffb703);
+            animation: flameWobble 0.8s infinite alternate ease-in-out;
+            transition: all 0.4s;
+        }
+
+        @keyframes flameWobble {
+            0% { transform: translateX(-50%) rotate(-4deg) scale(0.95); opacity: 0.9; }
+            100% { transform: translateX(-50%) rotate(4deg) scale(1.1); opacity: 1; }
+        }
+
+        .cake-hint {
+            font-size: 1.05rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .after-blow-message {
+            display: none;
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 18px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            font-weight: 700;
+            font-size: 1.2rem;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            0% { transform: translateY(12px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        /* ----------------- شريط الذكريات (صور بالطول Portrait) ----------------- */
+        .section-header {
+            text-align: center;
+            margin: 70px 20px 35px;
+        }
+
+        .section-header h2 {
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* شبكة الصور الرأسية المخصصة للصور الطولية */
+        .portrait-gallery {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .portrait-card {
+            background: var(--card-bg);
+            border-radius: 22px;
+            padding: 16px 16px 22px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 133, 161, 0.25);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .portrait-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 35px rgba(255, 71, 126, 0.2);
+        }
+
+        /* إطار الصورة بنسبة طولية 3:4 ومثالي لصور الموبايل */
+        .portrait-img-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 3 / 4; /* يضمن عرض الصورة بالطول دون تمطيط أو تشويه */
+            overflow: hidden;
+            border-radius: 16px;
+            background: #ffe3e8;
+        }
+
+        .portrait-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .portrait-card:hover .portrait-img-wrapper img {
+            transform: scale(1.04);
+        }
+
+        .portrait-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            backdrop-filter: blur(4px);
+        }
+
+        .portrait-details {
+            padding: 16px 8px 0;
+            text-align: right;
+        }
+
+        .portrait-caption {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .portrait-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* ----------------- رسائل الصحاب والعيلة ----------------- */
+        .messages-section {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .messages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 22px;
+        }
+
+        .message-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 26px 22px;
+            box-shadow: var(--card-shadow);
+            border-top: 5px solid var(--primary);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .message-content {
+            font-size: 0.98rem;
+            color: var(--text-main);
+            position: relative;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .message-content::before {
+            content: "“";
+            font-size: 3rem;
+            color: var(--secondary);
+            opacity: 0.3;
+            position: absolute;
+            top: -25px;
+            right: -10px;
+            line-height: 1;
+        }
+
+        .message-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-top: 1px dashed #ffd1dc;
+            padding-top: 12px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #ffe3e8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .author-info h4 {
+            font-size: 0.95rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .author-info span {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* ----------------- الخاتمة ----------------- */
+        footer {
+            text-align: center;
+            padding: 60px 20px 40px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .footer-heart {
+            color: var(--primary);
+            animation: pulse 1s infinite alternate;
+            display: inline-block;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.25); }
+        }
+
+        /* زر العودة لأعلى */
+        .back-to-top {
+            display: inline-block;
+            margin-top: 15px;
+            background: none;
+            border: none;
+            color: var(--primary);
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================
+         1. شاشة القفل بالباسورد في البداية
+         ========================================== -->
+    <div id="lockScreen">
+        <div class="lock-box">
+            <div class="lock-icon">🔒</div>
+            <h2 class="lock-title">معمول علشانك مخصوص! ❤️</h2>
+            <!-- ✏️ تقدر تغير التلميح المكتوب هنا -->
+            <p class="lock-hint">الصفحة دي مقفولة برمز سري.. اكتب كلمة السر عشان تفتحلك المفاجأة (التلميح: اول مرة اتكلمنا فيها)</p>
+            
+            <form class="password-form" onsubmit="checkPassword(event)">
+                <input 
+                    type="password" 
+                    id="passInput" 
+                    class="password-input" 
+                    placeholder="......" 
+                    autocomplete="off"
+                    required
+                >
+                <button type="submit" class="unlock-btn">افتح المفاجأة ✨</button>
+                <p id="errorMsg" class="error-msg">كلمة السر مش صحيحة يا جميل، فكر تاني! 😉</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         زر الموسيقى الرومانسية
+         ========================================== -->
+    <button class="music-player-btn" onclick="toggleMusic()" aria-label="تشغيل الموسيقى">
+        <span class="sound-wave">🎵</span>
+        <span id="musicBtnLabel">تشغيل الأغنية</span>
+    </button>
+
+    <!-- ✏️ حط هنا رابط أغنيتك المفضلة، أو سيبها لو عاوز تسمع مقطع رومانسي تجريبي -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="Albumaty.Com_mhmwd_alasyly_kl_snt_-_ealan_wady_dglt_llttwyr_alakary.mp3" type="audio/mp3">
+    </audio>
+
+    <!-- ==========================================
+         محتوى الموقع الرئيسي
+         ========================================== -->
+    <main>
+        <!-- الترويسة وبداية الاحتفال -->
+        <header>
+            <span class="badge-romantic">✨ عيد ميلاد أجمل فروسة ✨</span>
+            <!-- ✏️ عدل الاسم هنا -->
+            <h1 class="main-title">كل سنة وأنت طيب يا كتكوتي! 💖</h1>
+            <p class="hero-text">
+                النهارده مش مجرد يوم في السنة، ده اليوم اللي اتولد فيه أحلى حاجة في حياتي. عملتلك الصفحة دي مخصوص بكل حب عشان أقولك كل سنة وأنت بخير وسعادة.
+            </p>
+        </header>
+
+        <!-- ==========================================
+             2. قسم التورتة والشمعة التفاعلية
+             ========================================== -->
+        <section class="cake-wrapper">
+            <div class="cake-stage" onclick="blowCandle()" title="اضغط هنا لإطفاء الشمعة">
+                <span class="candle-flame" id="flame">🔥</span>
+                <span class="cake-emoji">🎂</span>
+            </div>
+            <p class="cake-hint" id="cakeHint">👇 اضغط على التورتة عشان تطفي الشمعة وتتمنى أمنية حلوة!</p>
+            <div class="after-blow-message" id="afterBlowMsg">
+                🎉 طفيت الشمعة!كل سنة وأنت طيب يا فروستي وكل سنة وأنت بخير ومبسوط وبتحقق كل حاجة نفسك فيها أتمنى لك سنة جديدة من عمرك تكون مليانة حاجات حلوة شبه قلبك وضحكة متفارقش وشك وأيام تعوضك عن أي حاجة زعلتك قبل كده. ❤️
+
+يمكن مش بعرف أعبّر عن كل الكلام اللي جوايا بس بجد أتمنى لك من كل قلبي إنك تكون دايمًا سعيد وإن كل حاجة بتتمناها تيجي في وقتها وإن ربنا يكتبلك الخير في كل خطوة في حياتك.
+
+أتمنى إنك تفضل دايمًا بنفس روحك الحلوة وإنك تعرف قد إيه وجودك لوحده ممكن يخلّي يوم حد أحلى من غير ما تكون واخد بالك. 🥹🤍! 💖
+            </div>
+        </section>
+
+        <!-- ==========================================
+             3. شريط الذكريات (مخصص للصور بالطول Portrait)
+             ========================================== -->
+        <section>
+            <div class="section-header">
+                <h2>📸 لحظاتنا وذكرياتنا الحلوة</h2>
+                <p>صور متسجلة في قلبي قبل ما تتسجل في الكاميرا</p>
+            </div>
+
+            <div class="portrait-gallery">
+                
+                <!-- كارت صورة 1 (بالطول) -->
+                <div class="portrait-card">
+                    <div class="portrait-img-wrapper">
+                        <span class="portrait-badge">أول صورة لينا</span>
+                        <!-- ✏️ استبدل الرابط باسم صورتك الرأسية (مثلاً: photos/pic1.jpg) -->
+                        <img src="WhatsApp Image 2026-10-19 at 1.02.57 AM.jpeg" alt="ذكرى رومانسية" onerror="this.src='https://placehold.co/600x800/ffd1dc/ff477e?text=صورتك+بالطول+1'">
+                    </div>
+                    <div class="portrait-details">
+                        <h3 class="portrait-caption">ضحكة من القلب</h3>
+                        <p class="portrait-text">اليوم ده كانت بداية كلامنا ومن وقتها وكل حاجة حواليا طعمها أحلى بوجودك.</p>
+                    </div>
+                </div>
+
+                <!-- كارت صورة 2 (بالطول) -->
+                <div class="portrait-card">
+                    <div class="portrait-img-wrapper">
+                        <span class="portrait-badge">يوم لا يُنسى</span>
+                        <!-- ✏️ استبدل الرابط باسم صورتك الرأسية الثانية -->
+                        <img src="WhatsApp Image 2026-10-19 at 1.02.57 لاتلاAM.jpeg" alt="ضحكة وفرحة" onerror="this.src='https://placehold.co/600x800/ffd1dc/ff477e?text=صورتك+بالطول+2'">
+                    </div>
+                    <div class="portrait-details">
+                        <h3 class="portrait-caption">بتطمن بوجودك</h3>
+                        <p class="portrait-text">لما بتضحك، الدنيا كلها بتضحك معاك. ربنا يديم ابتسامتك دي على طول.</p>
+                    </div>
+                </div>
+
+                <!-- كارت صورة 3 (بالطول) -->
+                <div class="portrait-card">
+                    <div class="portrait-img-wrapper">
+                        <span class="portrait-badge">ذكريات الشتاء</span>
+                        <!-- ✏️ استبدل الرابط باسم صورتك الرأسية الثالثة -->
+                        <img src="WhatsApp Image 2026-10-19 at 1.02.53 نبةاAM.jpeg" alt="سفر وخروجات" onerror="this.src='https://placehold.co/600x800/ffd1dc/ff477e?text=صورتك+بالطول+3'">
+                    </div>
+                    <div class="portrait-details">
+                        <h3 class="portrait-caption">أحلى وقت بيعدي معاك</h3>
+                        <p class="portrait-text">أي مكان بنروحه سوا بيتحول لأجمل مكان في العالم عشان أنت فيه.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ==========================================
+             4. رسائل الصحاب والعيلة
+             ========================================== -->
+        <section class="messages-section">
+            <div class="section-header">
+                <h2>💌 رسايل من الناس اللي بتحبك</h2>
+                <p>كلمات طالعة من القلب من كل حبايبك وأصحابك</p>
+            </div>
+
+            <div class="messages-grid">
+
+                <!-- رسالة 1 -->
+                <div class="message-card">
+                    <p class="message-content">
+                        "كل سنة وأنت طيب يا أغلى إنسان، دايماً سندي وصاحبي اللي مايتعوضش. يا رب تكون سنة مليانة فرح ونجاح."
+                    </p>
+                    <div class="message-author">
+                        <div class="avatar">🌟</div>
+                        <div class="author-info">
+                            <!-- ✏️ الاسم والعلاقة -->
+                            <h4>بسملة</h4>
+                            <span>أعز صديق</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- رسالة 2 -->
+                <div class="message-card">
+                    <p class="message-content">
+                        "عيد ميلاد سعيد يا سكر ربنا يحفظك ويفرح قلبك زي ما مفرحني دايماً بوجودك معايا."
+                    </p>
+                    <div class="message-author">
+                        <div class="avatar">👨‍👩‍👧</div>
+                        <div class="author-info">
+                            <h4>بسبوسة</h4>
+                            <span>الصاحبة الوفية</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- رسالة 3 -->
+                <div class="message-card">
+                    <p class="message-content">
+                        "سنة جديدة مليانة إنجازات وتوفيق في كل خطوة يا رب، بتمنالك أيام شبه قلبك الجميل!"
+                    </p>
+                    <div class="message-author">
+                        <div class="avatar">💐</div>
+                        <div class="author-info">
+                            <h4>بوسبوس</h4>
+                            <span>الصحبة الحلوة</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- رسالة 4 (رسالتك الخاصة أنت) -->
+                <div class="message-card" style="border-top-color: #ff2a68; background: #fff5f8;">
+                    <p class="message-content" style="color: #ff2a68; font-weight: 700;">
+                        "وجودك في حياتي هو أكبر هدية ربنا أكرمني بيها. بحبك من كل قلبي وبتمنالك سنة سعيدة تكون بداية لأيام كلها هنا وفرح."
+                    </p>
+                    <div class="message-author">
+                        <div class="avatar">❤️</div>
+                        <div class="author-info">
+                            <h4>بسابيسو</h4>
+                            <span>من كل قلبي</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- خاتمة الصفحة -->
+        <footer>
+            <p>صُممت بكل حب عشانك أنت بس <span class="footer-heart">❤️</span></p>
+            <button class="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">العودة لأعلى الصفحة ↑</button>
+        </footer>
+    </main>
+
+    <!-- ==========================================
+         برمجة الأحداث والتفاعل (JavaScript)
+         ========================================== -->
+    <script>
+        /* 
+           ✏️ ضبط كلمة السر هنا:
+           تقدر تغير الرقم أو الكلمة دي لأي حاجة تحبها (تاريخ ميلاد مثل '2000' أو كلمة مثل 'love' أو 'بحبك')
+        */
+        const SECRET_PASSWORD = "682025";
+
+        // التحقق من كلمة السر
+        function checkPassword(event) {
+            event.preventDefault();
+            const inputVal = document.getElementById("passInput").value.trim();
+            const errorMsg = document.getElementById("errorMsg");
+            const lockScreen = document.getElementById("lockScreen");
+
+            if (inputVal === SECRET_PASSWORD) {
+                // إخفاء الخطأ وتلاشي شاشة القفل
+                errorMsg.style.display = "none";
+                lockScreen.classList.add("unlocked");
+
+                // إطلاق احتفال مفرقعات كونفيتي في الشاشة
+                shootConfettiBurst();
+
+                // تشغيل الأغنية مباشرة بعد فتح القفل (إن أمكن)
+                startMusicAutoplay();
+            } else {
+                errorMsg.style.display = "block";
+                const passField = document.getElementById("passInput");
+                passField.style.borderColor = "#e63946";
+                passField.value = "";
+                passField.focus();
+            }
+        }
+
+        // إطفاء شمعة التورتة
+        let candleIsBlown = false;
+        function blowCandle() {
+            if (!candleIsBlown) {
+                const flame = document.getElementById("flame");
+                const hint = document.getElementById("cakeHint");
+                const msg = document.getElementById("afterBlowMsg");
+
+                // إخفاء الشعلة
+                flame.style.opacity = "0";
+                flame.style.transform = "translateX(-50%) scale(0)";
+                
+                hint.style.display = "none";
+                msg.style.display = "block";
+
+                // إطلاق كونفيتي كثيف للاحتفال
+                shootConfettiBurst();
+                shootSideCannons();
+
+                candleIsBlown = true;
+            }
+        }
+
+        // إطلاق ألعاب الكونفيتي والقلوب
+        function shootConfettiBurst() {
+            confetti({
+                particleCount: 120,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#ff477e', '#ff85a1', '#fbb1bd', '#ffd166', '#06d6a0']
+            });
+        }
+
+        function shootSideCannons() {
+            const end = Date.now() + 1500;
+            const colors = ['#ff477e', '#ffb703', '#ffffff'];
+
+            (function frame() {
+                confetti({
+                    particleCount: 3,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: colors
+                });
+                confetti({
+                    particleCount: 3,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: colors
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+
+        // التحكم في مشغل الموسيقى
+        const music = document.getElementById("bgMusic");
+        const musicLabel = document.getElementById("musicBtnLabel");
+
+        function toggleMusic() {
+            if (music.paused) {
+                music.play().then(() => {
+                    musicLabel.textContent = "إيقاف الموسيقى";
+                }).catch(err => {
+                    console.log("Audio play blocked by browser:", err);
+                });
+            } else {
+                music.pause();
+                musicLabel.textContent = "تشغيل الأغنية";
+            }
+        }
+
+        function startMusicAutoplay() {
+            music.play().then(() => {
+                musicLabel.textContent = "إيقاف الموسيقى";
+            }).catch(() => {
+                // إذا حظر المتصفح التشغيل التلقائي حتى بعد النقر
+                musicLabel.textContent = "تشغيل الأغنية 🎵";
+            });
+        }
+    </script>
+</body>
+</html>
